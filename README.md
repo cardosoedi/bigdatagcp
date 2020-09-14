@@ -4,9 +4,9 @@
 2. Crie um bucket para subir os arquivos do projeto.
 3. Crie uma service account com permissões de owner do projeto
 3. Com find/replace substitua em todos os arquivos os valores os itens abaixo:
-    1. <your-gcs-bucket-name> para o nome do seu bucket no GCS.
-    2. <your-service-account>@developer.gserviceaccount.com para sua service account.
-    3. <your-project-id> para o nome do seu projeto no GCP.
+    1. \<your-gcs-bucket-name\> para o nome do seu bucket no GCS.
+    2. \<your-service-account\>@developer.gserviceaccount.com para sua service account.
+    3. \<your-project-id\> para o nome do seu projeto no GCP.
 4. Instale o sdk do google (gsutils) na sua máquina. Veja como nesse [link.](https://cloud.google.com/storage/docs/gsutil_install) 
 5. Copie os diretórios compute_engine e dataproc para a raiz do seu bucket gerado no passo 2
 6. Abra um terminal ou prompt de commando e execute os comandos abaixo
@@ -68,7 +68,7 @@ gcloud beta compute --project=<your-project-id> instances create airflow \
  - Criar uma connection slack_conn com os valores:
     ```
     login: <your-slack-channel>
-    password: >your-slackbot-token>
+    password: <your-slackbot-token>
     ```
    
 Após as configurações das conexões, ative as duas dags que aparecem na UI do airflow.  
