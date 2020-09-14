@@ -1,0 +1,11 @@
+fundamentus-stocks-stream:
+    dag_param:
+        slack_channel: 'kafka_alert'
+        schedule: '* * * * *'
+        catchup: False
+        owner: 'Fia TCC'
+    kafka_param:
+        host: '10.142.0.26'
+        topic: 'Stocks'
+    spark_streaming:
+        partitionBy: 'papel'
