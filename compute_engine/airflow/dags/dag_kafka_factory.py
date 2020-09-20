@@ -3,6 +3,9 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.contrib.operators.dataproc_operator import DataprocClusterCreateOperator, DataProcPySparkOperator, DataprocClusterDeleteOperator
 from airflow_utils import task_fail_slack_alert, load_dags_from_yaml, normalize_dag_id
+from airflow.hooks.base_hook import BaseHook
+
+gcp_project_id = BaseHook.get_conn('google_cloud_default').project
 
 
 def create_dag(dag_id,
@@ -25,13 +28,15 @@ def create_dag(dag_id,
 
         cria_cluster_streaming = DataprocClusterCreateOperator(
             task_id='cria_cluster_streaming',
-            project_id=<your-project-id>,
+            project_id=gcp_project_id,
             cluster_name=dataproc_clustername,
             zone='us-east1-b',
             storage_bucket='<your-gcs-bucket-name>',
-            init_actions_uris=['gs://<your-gcs-bucket-name>/dataproc/dataproc_init.sh'],
+            init_actions_uris=['gs://<your-gcs-bucket-name>/dataproc/dataproc_init.sh',
+                               'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh'],
             init_action_timeout='10m',
             image_version='1.4-debian9',
+            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore'},
             properties={
                 'spark:spark.driver.core': '1',
                 'spark:spark.driver.memory': '18g',
@@ -44,21 +49,23 @@ def create_dag(dag_id,
                 'spark:spark.debug.maxToStringFields': '300',
                 'spark:spark.jars.packages': 'org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.3,com.redislabs:spark-redis:2.4.0',
                 'spark:spark.redis.host': kafka_param.get('host'),
-                'spark:spark.redis.port': '6379'
+                'spark:spark.redis.port': '6379',
             },
             num_masters=1,
-            master_machine_type='e2-highmem-4',
+            master_machine_type='e2-standard-2',
             master_disk_type='pd-standard',
             master_disk_size=1024,
             num_workers=0,
-            worker_machine_type='e2-highmem-4',
+            worker_machine_type='e2-standard-2',
             worker_disk_type='pd-standard',
             worker_disk_size=1024,
             region='us-east1',
             idle_delete_ttl=1800,
             auto_delete_ttl=3600,
             service_account='<your-service-account>@developer.gserviceaccount.com',
-            service_account_scopes=['https://www.googleapis.com/auth/cloud-platform'])
+            service_account_scopes=[
+                'https://www.googleapis.com/auth/cloud-platform',
+                'https://www.googleapis.com/auth/sqlservice.admin'])
 
         inicia_spark_streaming = DataProcPySparkOperator(
             task_id='inicia_spark_streaming',
@@ -72,7 +79,7 @@ def create_dag(dag_id,
         deleta_cluster_streaming = DataprocClusterDeleteOperator(
             task_id='deleta_cluster_streaming',
             cluster_name=dataproc_clustername,
-            project_id=<your-project-id>,
+            project_id=gcp_project_id,
             region='us-east1',
             trigger_rule='all_done'
         )
