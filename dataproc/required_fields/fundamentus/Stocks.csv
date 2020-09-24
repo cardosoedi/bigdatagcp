@@ -1,0 +1,4 @@
+column_name,type
+process_date,Timestamp
+papel,String
+cotacao,Decimal(10,2)

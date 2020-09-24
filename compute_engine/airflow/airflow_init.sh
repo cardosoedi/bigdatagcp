@@ -35,8 +35,8 @@ sudo pip3 -q install kafka-python==2.0.1 &&
 mkdir -p /root/airflow/dags &&
 echo 'export AIRFLOW_HOME=/root/airflow' >> /root/.bashrc &&
 source /root/.bashrc &&
-gsutil -m cp gs://<your-gcs-bucket-name>/compute_engine/airflow/airflow.cfg /root/airflow/ &&
-gsutil -m cp -r gs://<your-gcs-bucket-name>/compute_engine/airflow/dags/* /root/airflow/dags/ &&
+gsutil -m cp gs://fia-tcc-configurations/compute_engine/airflow/airflow.cfg /root/airflow/ &&
+gsutil -m cp -r gs://fia-tcc-configurations/compute_engine/airflow/dags/* /root/airflow/dags/ &&
 
 airflow initdb &&
 (airflow webserver --port=8080&) &&

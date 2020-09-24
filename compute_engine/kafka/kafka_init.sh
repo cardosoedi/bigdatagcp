@@ -18,9 +18,9 @@ sudo mv kafka_2.12-2.2.2 kafka &&
 sudo rm -rf kafka_2.12-2.2.2 &&
 sudo rm kafka_2.12-2.2.2.tgz &&
 
-sudo gsutil cp gs://<your-gcs-bucket-name>/compute_engine/kafka/kafka.service /etc/systemd/system/ &&
-sudo gsutil cp gs://<your-gcs-bucket-name>/compute_engine/kafka/zookeeper.service /etc/systemd/system/ &&
-sudo gsutil cp gs://<your-gcs-bucket-name>/compute_engine/kafka/server.properties /opt/kafka/config/ &&
+sudo gsutil cp gs://fia-tcc-configurations/compute_engine/kafka/kafka.service /etc/systemd/system/ &&
+sudo gsutil cp gs://fia-tcc-configurations/compute_engine/kafka/zookeeper.service /etc/systemd/system/ &&
+sudo gsutil cp gs://fia-tcc-configurations/compute_engine/kafka/server.properties /opt/kafka/config/ &&
 
 sudo chmod 755 /etc/systemd/system/zookeeper.service &&
 sudo chmod 755 /etc/systemd/system/kafka.service &&

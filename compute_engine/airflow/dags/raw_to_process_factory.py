@@ -12,11 +12,11 @@ def create_dag(dag_id,
                schedule,
                default_args,
                dag_param):
-    kafka_param = dag_param.get('kafka_dag')
+    kafka_param = dag_param.get('kafka_param')
     spark_param = dag_param.get('spark_param')
 
     with DAG(
-            dag_id=dag_id+'-stream',
+            dag_id=dag_id+'-raw-to-process',
             default_args=default_args,
             schedule_interval=schedule,
             catchup=False,
@@ -26,8 +26,8 @@ def create_dag(dag_id,
 
         dataproc_clustername = f'{normalize_dag_id(dag_id)}-cluster'
 
-        cria_cluster_streaming = DataprocClusterCreateOperator(
-            task_id='cria_cluster_streaming',
+        create_spark_cluster = DataprocClusterCreateOperator(
+            task_id='create_spark_cluster',
             project_id=gcp_project_id,
             cluster_name=dataproc_clustername,
             zone='us-east1-b',
@@ -46,10 +46,7 @@ def create_dag(dag_id,
                 'spark:spark.executor.memory': '3584g',
                 'spark:spark.executor.memoryOverhead': '512M',
                 'spark:spark.default.parallelism': '1',
-                'spark:spark.debug.maxToStringFields': '300',
-                'spark:spark.jars.packages': 'org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.3,com.redislabs:spark-redis:2.4.0',
-                'spark:spark.redis.host': kafka_param.get('host'),
-                'spark:spark.redis.port': '6379',
+                'spark:spark.debug.maxToStringFields': '300'
             },
             num_masters=1,
             master_machine_type='e2-standard-2',
@@ -67,43 +64,51 @@ def create_dag(dag_id,
                 'https://www.googleapis.com/auth/cloud-platform',
                 'https://www.googleapis.com/auth/sqlservice.admin'])
 
-        inicia_spark_streaming = DataProcPySparkOperator(
-            task_id='inicia_spark_streaming',
-            main='gs://fia-tcc-configurations/compute_engine/airflow/dags/spark/reading_data_from_kafka.py',
-            arguments=[
-                f"--source={spark_param.get('source')}",
-                f"--host={kafka_param.get('host')}",
-                f"--topic={kafka_param.get('topic')}",
-                f"--key={spark_param.get('partitionBy', '')}"],
-            cluster_name=dataproc_clustername,
-            region='us-east1',
-            trigger_rule='all_success'
-        )
+        if spark_param.get('script'):
+            spark_raw_to_process = DataProcPySparkOperator(
+                task_id='spark_raw_to_process',
+                main=spark_param.get('script'),
+                arguments=spark_param.get('script_arguments'),
+                cluster_name=dataproc_clustername,
+                region='us-east1',
+                trigger_rule='all_success')
+        else:
+            spark_raw_to_process = DataProcPySparkOperator(
+                task_id='spark_raw_to_process',
+                main='gs://fia-tcc-configurations/compute_engine/airflow/dags/spark/raw_to_process.py',
+                arguments=[f"--source={spark_param.get('source')}",
+                           f"--dataset={kafka_param.get('topic')}",
+                           f"--key={spark_param.get('key')}"],
+                cluster_name=dataproc_clustername,
+                region='us-east1',
+                trigger_rule='all_success')
 
-        deleta_cluster_streaming = DataprocClusterDeleteOperator(
-            task_id='deleta_cluster_streaming',
+        delete_spark_cluster = DataprocClusterDeleteOperator(
+            task_id='delete_spark_cluster',
             cluster_name=dataproc_clustername,
             project_id=gcp_project_id,
             region='us-east1',
-            trigger_rule='all_done'
-        )
-        cria_cluster_streaming >> inicia_spark_streaming >> deleta_cluster_streaming
+            trigger_rule='all_done')
+        create_spark_cluster >> spark_raw_to_process >> delete_spark_cluster
     return dag
 
 
 for dag_list in load_dags_from_yaml(os.path.dirname(__file__), 'kafka'):
     for dag in dag_list:
         for dag_id in dag.keys():
-            dag_param = dag.get(dag_id).get('dag_param').get('kafka_dag')
-            default_args = {'owner': dag_param.get('owner'),
-                            'start_date': datetime(2020, 9, 1),
-                            'depends_on_past': False,
-                            'retries': 1,
-                            'retry_delay': timedelta(seconds=10),
-                            'on_failure_callback': task_fail_slack_alert,
-                            'slack_channel': dag_param.get('slack_channel')}
-            schedule = dag_param.get('schedule')
-            globals()[dag_id] = create_dag(dag_id,
-                                           schedule,
-                                           default_args,
-                                           dag.get(dag_id))
+            dag_param = dag.get(dag_id).get('dag_param').get('raw_to_process_dag')
+            if dag_param:
+                default_args = {'owner': dag_param.get('owner'),
+                                'start_date': datetime(2020, 9, 1),
+                                'depends_on_past': False,
+                                'retries': 1,
+                                'retry_delay': timedelta(seconds=10),
+                                'on_failure_callback': task_fail_slack_alert,
+                                'slack_channel': dag_param.get('slack_channel')}
+                schedule = dag_param.get('schedule')
+                globals()[dag_id] = create_dag(dag_id,
+                                               schedule,
+                                               default_args,
+                                               dag.get(dag_id))
+            else:
+                pass

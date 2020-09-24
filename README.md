@@ -19,12 +19,12 @@ gcloud beta compute --project=<your-project-id> instances create kafka \
 --machine-type=e2-standard-4 \
 --subnet=default \
 --network-tier=PREMIUM \
---metadata startup-script-url=gs://<your-gcs-bucket-name>/compute_engine/kafka/kafka_init.sh \
+--metadata startup-script-url=gs://fia-tcc-configurations/compute_engine/kafka/kafka_init.sh \
 --maintenance-policy=MIGRATE \
 --image=ubuntu-2004-focal-v20200902 \
 --image-project=ubuntu-os-cloud \
 --boot-disk-size=30GB \
---boot-disk-type=pd-ssd \
+--boot-disk-type=pd-standard \
 --boot-disk-device-name=kafka_disk \
 --reservation-affinity=any \
 --service-account <your-service-account>@developer.gserviceaccount.com \
@@ -46,18 +46,18 @@ gcloud sql instances create hive-metastore \
 ```
 gcloud beta dataproc clusters create hive-cluster \
 --scopes sql-admin \
---bucket fia-tcc-dataproc-metainfo \
+--bucket fia-tcc-logs \
 --region us-east1 \
 --zone us-east1-b \
 --single-node \
 --master-machine-type e2-standard-2 \
---master-boot-disk-type pd-ssd \
+--master-boot-disk-type pd-standard \
 --master-boot-disk-size 30GB \
 --image-version 1.4-debian9 \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
 --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
---properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-dataproc-metainfo/dataproc/datasets
+--properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
 ************************************************************************************************************************
@@ -68,12 +68,12 @@ gcloud beta compute --project=fia-tcc instances create prestosql \
 --machine-type=e2-standard-4 \
 --subnet=default \
 --network-tier=PREMIUM \
---metadata startup-script-url=gs://fia-tcc-dataproc-metainfo/compute_engine/prestosql/prestosql_init.sh \
+--metadata startup-script-url=gs://fia-tcc-configurations/compute_engine/prestosql/prestosql_init.sh \
 --maintenance-policy=MIGRATE \
 --image=ubuntu-2004-focal-v20200902 \
 --image-project=ubuntu-os-cloud \
 --boot-disk-size=30GB \
---boot-disk-type=pd-ssd \
+--boot-disk-type=pd-standard \
 --boot-disk-device-name=prestosql_disk \
 --reservation-affinity=any \
 --service-account 46783465558-compute@developer.gserviceaccount.com \
@@ -81,26 +81,26 @@ gcloud beta compute --project=fia-tcc instances create prestosql \
 --tags https-server
 ```
 ### Redirecione sua porta local para acesso a UI do presto
-```gcloud compute ssh prestosql --project fia-tcc --zone us-east1-b -- -L 18080:localhost:18080```
+```gcloud compute ssh prestosql --project fia-tcc --zone us-east1-b -- -L 8080:localhost:8080```
 
 
 ************************************************************************************************************************
 ### Subindo o serviço do airflow em um Compute Engine (vm instances)
 ```
-gcloud beta compute --project=<your-project-id> instances create airflow \
+gcloud beta compute --project=fia-tcc instances create airflow \
 --zone=us-east1-b \
---machine-type=e2-standard-4 \
+--machine-type=e2-standard-2 \
 --subnet=default \
 --network-tier=PREMIUM \
---metadata startup-script-url=gs://<your-gcs-bucket-name>/compute_engine/airflow/airflow_init.sh \
+--metadata startup-script-url=gs://fia-tcc-configurations/compute_engine/airflow/airflow_init.sh \
 --maintenance-policy=MIGRATE \
 --image=ubuntu-2004-focal-v20200902 \
 --image-project=ubuntu-os-cloud \
 --boot-disk-size=30GB \
---boot-disk-type=pd-ssd \
+--boot-disk-type=pd-standard \
 --boot-disk-device-name=airflow_disk \
 --reservation-affinity=any \
---service-account <your-service-account>@developer.gserviceaccount.com \
+--service-account 46783465558-compute@developer.gserviceaccount.com \
 --scopes https://www.googleapis.com/auth/cloud-platform \
 --tags https-server
 ```
@@ -135,12 +135,12 @@ __no windows trocar ^ por ^^^^__
 gcloud beta dataproc clusters create validation \
 --enable-component-gateway \
 --scopes sql-admin \
---bucket fia-tcc-dataproc-metainfo \
+--bucket fia-tcc-logs \
 --region us-east1 \
 --zone us-east1-b \
 --single-node \
 --master-machine-type e2-standard-2 \
---master-boot-disk-type pd-ssd \
+--master-boot-disk-type pd-standard \
 --master-boot-disk-size 30GB \
 --image-version 1.4-debian9 \
 --optional-components ANACONDA,JUPYTER \

@@ -12,12 +12,14 @@ import quinn
 from quinn.dataframe_validator import DataFrameMissingColumnError
 
 parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--source', type=str, help="Source's name of your dataset")
 parser.add_argument('--host', type=str, help='IP where your kafka server is running.')
 parser.add_argument('-t', '--topic', type=str, help='A topic to be read from kafka server.')
 parser.add_argument('-k', '--key', type=str,
                     help="Key name into your message that will be used to group data into the same dataset")
 
 args = parser.parse_args()
+SOURCE = args.source
 KAFKA_HOST = args.host
 KAFKA_TOPIC = args.topic
 KEY_FIELD = args.key
@@ -41,9 +43,9 @@ producer = KafkaProducer(bootstrap_servers=[f'{KAFKA_HOST}:9092'],
 
 
 def get_required_fields():
-    df_required_fields = spark.read.option('header', 'true').csv(
-        f'gs://<your-gcs-bucket-name>/dataproc/required_fields/{KAFKA_TOPIC}.csv')
-    rows = df_required_fields.collect()
+    df_required_fields = spark.read.option('header', 'true').option('delimiter', ',').csv(
+        f'gs://fia-tcc-configurations/dataproc/required_fields/{SOURCE}/{KAFKA_TOPIC}.csv')
+    rows = df_required_fields.select('column_name').collect()
     required_fields = [row.column_name for row in rows]
     return required_fields
 
@@ -76,7 +78,7 @@ def process(rdd):
                         .option("key.column", KEY_FIELD) \
                         .save(mode='append')
                     df_s3.write.format('parquet') \
-                        .save(f'gs://<your-gcs-bucket-name>/dataproc/datasets/{KAFKA_TOPIC}/',
+                        .save(f'gs://fia-tcc-raw-zone/{SOURCE}/{KAFKA_TOPIC}/',
                               mode='append',
                               partitionBy=KEY_FIELD)
                 except DataFrameMissingColumnError as err:

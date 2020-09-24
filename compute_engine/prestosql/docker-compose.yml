@@ -1,0 +1,22 @@
+version: '2'
+services:
+  prestosql:
+    build: .
+    networks: ["presto_network"]
+    hostname: prestosql.presto_network
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./etc/config.properties:/usr/lib/presto/etc/config.properties"
+      - "./etc/node.properties:/usr/lib/presto/etc/node.properties"
+      - "./etc/log.properties:/usr/lib/presto/etc/log.properties"
+      - "./etc/jvm.config:/usr/lib/presto/etc/jvm.config"
+      - "./etc/catalog/hive.properties:/usr/lib/presto/etc/catalog/hive.properties"
+      - "./etc/catalog/jmx.properties:/usr/lib/presto/etc/catalog/jmx.properties"
+      - "./etc/catalog/memory.properties:/usr/lib/presto/etc/catalog/memory.properties"
+      - "./etc/catalog/tpcds.properties:/usr/lib/presto/etc/catalog/tpcds.properties"
+      - "./etc/catalog/tpch.properties:/usr/lib/presto/etc/catalog/tpch.properties"
+networks:
+  presto_network:
+    external:
+      name: presto_network
