@@ -59,7 +59,7 @@ def create_dag(dag_id,
             region='us-east1',
             idle_delete_ttl=1800,
             auto_delete_ttl=3600,
-            service_account='<your-service-account>@developer.gserviceaccount.com',
+            service_account='sa-fia-tcc@fia-tcc.iam.gserviceaccount.com',
             service_account_scopes=[
                 'https://www.googleapis.com/auth/cloud-platform',
                 'https://www.googleapis.com/auth/sqlservice.admin'])

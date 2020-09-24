@@ -27,7 +27,7 @@ gcloud beta compute --project=<your-project-id> instances create kafka \
 --boot-disk-type=pd-standard \
 --boot-disk-device-name=kafka_disk \
 --reservation-affinity=any \
---service-account <your-service-account>@developer.gserviceaccount.com \
+--service-account sa-fia-tcc@fia-tcc.iam.gserviceaccount.com  \
 --scopes https://www.googleapis.com/auth/cloud-platform \
 --tags https-server
 ```
@@ -76,7 +76,7 @@ gcloud beta compute --project=fia-tcc instances create prestosql \
 --boot-disk-type=pd-standard \
 --boot-disk-device-name=prestosql_disk \
 --reservation-affinity=any \
---service-account 46783465558-compute@developer.gserviceaccount.com \
+--service-account sa-fia-tcc@fia-tcc.iam.gserviceaccount.com  \
 --scopes https://www.googleapis.com/auth/cloud-platform \
 --tags https-server
 ```
@@ -100,7 +100,7 @@ gcloud beta compute --project=fia-tcc instances create airflow \
 --boot-disk-type=pd-standard \
 --boot-disk-device-name=airflow_disk \
 --reservation-affinity=any \
---service-account 46783465558-compute@developer.gserviceaccount.com \
+--service-account sa-fia-tcc@fia-tcc.iam.gserviceaccount.com  \
 --scopes https://www.googleapis.com/auth/cloud-platform \
 --tags https-server
 ```
