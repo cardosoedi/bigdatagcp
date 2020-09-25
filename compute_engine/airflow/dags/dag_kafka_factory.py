@@ -5,18 +5,19 @@ from airflow.contrib.operators.dataproc_operator import DataprocClusterCreateOpe
 from airflow_utils import task_fail_slack_alert, load_dags_from_yaml, normalize_dag_id
 from airflow.hooks.base_hook import BaseHook
 
-gcp_project_id = BaseHook.get_conn('google_cloud_default').project
+gcp_project_id = BaseHook.get_connection('google_cloud_default').extra_dejson['extra__google_cloud_platform__project']
 
 
 def create_dag(dag_id,
                schedule,
                default_args,
                dag_param):
-    kafka_param = dag_param.get('kafka_dag')
+    kafka_param = dag_param.get('kafka_param')
     spark_param = dag_param.get('spark_param')
 
+    dag_id = dag_id + '-stream'
     with DAG(
-            dag_id=dag_id+'-stream',
+            dag_id=dag_id,
             default_args=default_args,
             schedule_interval=schedule,
             catchup=False,
@@ -31,19 +32,19 @@ def create_dag(dag_id,
             project_id=gcp_project_id,
             cluster_name=dataproc_clustername,
             zone='us-east1-b',
-            storage_bucket='<your-gcs-bucket-name>',
+            storage_bucket='fia-tcc-logs',
             init_actions_uris=['gs://fia-tcc-configurations/dataproc/dataproc_init.sh',
                                'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh'],
             init_action_timeout='10m',
             image_version='1.4-debian9',
-            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore'},
+            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore2'},
             properties={
                 'spark:spark.driver.core': '1',
                 'spark:spark.driver.memory': '3584M',
                 'spark:spark.driver.memoryOverhead': '512M',
                 'spark:spark.executor.cores': '1',
                 'spark:spark.executor.instances': '1',
-                'spark:spark.executor.memory': '3584g',
+                'spark:spark.executor.memory': '3584M',
                 'spark:spark.executor.memoryOverhead': '512M',
                 'spark:spark.default.parallelism': '1',
                 'spark:spark.debug.maxToStringFields': '300',
@@ -95,7 +96,7 @@ for dag_list in load_dags_from_yaml(os.path.dirname(__file__), 'kafka'):
     for dag in dag_list:
         for dag_id in dag.keys():
             dag_param = dag.get(dag_id).get('dag_param').get('kafka_dag')
-            default_args = {'owner': dag_param.get('owner'),
+            default_args = {'owner': dag.get(dag_id).get('dag_param').get('owner'),
                             'start_date': datetime(2020, 9, 1),
                             'depends_on_past': False,
                             'retries': 1,

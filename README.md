@@ -14,9 +14,9 @@
 ************************************************************************************************************************
 ### Subindo o serviço do Kafka e redis em um Compute Engine (vm instances)
 ```
-gcloud beta compute --project=<your-project-id> instances create kafka \
+gcloud beta compute --project=fia-tcc instances create kafka \
 --zone=us-east1-b \
---machine-type=e2-standard-4 \
+--machine-type=e2-standard-2 \
 --subnet=default \
 --network-tier=PREMIUM \
 --metadata startup-script-url=gs://fia-tcc-configurations/compute_engine/kafka/kafka_init.sh \
@@ -35,10 +35,10 @@ gcloud beta compute --project=<your-project-id> instances create kafka \
 ************************************************************************************************************************
 ### Subindo banco mysql para armazenar o metastore do hive (Cloud SQL)
 ```
-gcloud sql instances create hive-metastore \
+gcloud sql instances create hive-metastore2 \
 --database-version="MYSQL_5_7" \
 --activation-policy=ALWAYS \
---zone us-east1
+--zone us-east1-d
 ```
 
 ************************************************************************************************************************
@@ -56,7 +56,7 @@ gcloud beta dataproc clusters create hive-cluster \
 --image-version 1.4-debian9 \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore2" \
 --properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
@@ -106,20 +106,20 @@ gcloud beta compute --project=fia-tcc instances create airflow \
 ```
 
 ### Redirecione sua porta local para acesso a UI do airflow
-```gcloud compute ssh airflow --project <your-project-id> --zone us-east1-b -- -L 8080:localhost:8080```
+```gcloud compute ssh airflow --project fia-tcc --zone us-east1-b -- -L 8081:localhost:8080```
 
 ##### Configurações na UI do airflow
 
 - Alterar a connection google_cloud_default:
 
     ```
-  project_id = <your-project-id>
+  project_id = fia-tcc
   scope = https://www.googleapis.com/auth/cloud-platform
   ```
 
  - Criar uma connection slack_conn com os valores:
     ```
-    login: <your-slack-channel>
+    login: projeto-fia-tcc
     password: <your-slackbot-token>
     ```
    

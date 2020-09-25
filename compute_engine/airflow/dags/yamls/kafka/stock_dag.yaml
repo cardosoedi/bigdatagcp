@@ -10,7 +10,7 @@ fundamentus-stocks:
             catchup: False
         owner: 'Fia TCC'
     kafka_param:
-        host: '10.142.0.26'
+        host: '10.142.0.44'
         topic: 'Stocks'
     spark_param:
         partitionBy: 'papel'

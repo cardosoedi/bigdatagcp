@@ -22,7 +22,7 @@ spark = SparkSession \
 
 window = Window.partitionBy(KEY).orderBy("process_date")
 
-df_teste = spark.read.parquet(f'gs://fia-tcc-raw/{SOURCE}/{DATASET}')
+df_teste = spark.read.parquet(f'gs://fia-tcc-raw-zone/{SOURCE}/{DATASET}')
 ranked = df_teste.withColumn("rank", rank().over(window))
 df_final = ranked.where('rank == 1').drop('rank')
 df_final.write.mode('overwrite').saveAsTable(f"{SOURCE}_{DATASET}")

@@ -8,7 +8,7 @@ yes | sudo apt install docker-compose &&
 
 
 mkdir -p /etc/prestosql &&
-gsutil -m cp -r gs://fia-tcc-dataproc-metainfo/compute_engine/prestosql/* /etc/prestosql &&
+gsutil -m cp -r gs://fia-tcc-configurations/compute_engine/prestosql/* /etc/prestosql &&
 cd /etc/prestosql
 
 sudo docker network create presto_network &&
