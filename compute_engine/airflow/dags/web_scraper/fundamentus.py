@@ -1,13 +1,13 @@
 # coding: utf-8
 import codecs
 import argparse
-import datetime
 import requests
 import unicodedata
 from json import dumps
 from bs4 import BeautifulSoup
 from kafka import KafkaProducer
 from requests.exceptions import ConnectionError
+from stock_schema import stock_fields
 
 
 def download_html(url, numero_tentativas=2):
@@ -39,7 +39,12 @@ def remove_acento(string_velha):
 
 
 def normaliza_string(string_velha):
-    return string_velha.replace(' ', '_').replace('/', '').replace('(', '').replace(')', '').lower()
+    return string_velha.replace('$', '')\
+        .replace(' ', '_')\
+        .replace('/', '')\
+        .replace('(', '')\
+        .replace(')', '')\
+        .replace('__', '_').lower()
 
 
 def table_without_header(html_table):
@@ -72,8 +77,7 @@ def table_header(html_table):
                         label = normaliza_string(remove_acento(prefix + label_field.text))
                 else:
                     for data_field in column.find_all('span'):
-                        data_raw = data_field
-                        data = data_raw.text.replace('\n', '').strip()
+                        data = data_field.text.replace('\n', '').strip()
                     values[label] = remove_acento(data) if data else 'null'
     return values
 
@@ -91,8 +95,7 @@ def table_header2(html_table):
                         label = normaliza_string(remove_acento(prefix + label_field.text))
                 else:
                     for data_field in column.find_all('span'):
-                        data_raw = data_field
-                        data = data_raw.text.replace('\n', '').strip()
+                        data = data_field.text.replace('\n', '').strip()
                     values[label] = remove_acento(data) if data else 'null'
     return values
 
@@ -110,8 +113,7 @@ def table_double_header(html_table):
                         label = normaliza_string(remove_acento(label_field.text + prefix))
                 else:
                     for data_field in column.find_all('span'):
-                        data_raw = data_field
-                        data = data_raw.text.replace('\n', '').strip()
+                        data = data_field.text.replace('\n', '').strip()
                     values[label] = remove_acento(data) if data else 'null'
     return values
 
@@ -131,7 +133,7 @@ def parse_html(html):
         '4': table_double_header
     }
 
-    all_data = {'process_date': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}
+    all_data = stock_fields
     for table_number, table in enumerate(tables):
         # table_id = 'table_'+str(table_number)
         all_data.update(process_type[str(table_number)](table))
