@@ -11,11 +11,11 @@ services:
       - "./etc/node.properties:/usr/lib/presto/etc/node.properties"
       - "./etc/log.properties:/usr/lib/presto/etc/log.properties"
       - "./etc/jvm.config:/usr/lib/presto/etc/jvm.config"
-      - "./etc/catalog/hive.properties:/usr/lib/presto/etc/catalog/hive.properties"
-      - "./etc/catalog/jmx.properties:/usr/lib/presto/etc/catalog/jmx.properties"
-      - "./etc/catalog/memory.properties:/usr/lib/presto/etc/catalog/memory.properties"
-      - "./etc/catalog/tpcds.properties:/usr/lib/presto/etc/catalog/tpcds.properties"
-      - "./etc/catalog/tpch.properties:/usr/lib/presto/etc/catalog/tpch.properties"
+      - "./etc/catalog/processed-zone.properties:/usr/lib/presto/etc/catalog/processed-zone.properties"
+      - "./etc/catalog/kafka.properties:/usr/lib/presto/etc/catalog/kafka.properties"
+      - "./etc/catalog/redis.properties:/usr/lib/presto/etc/catalog/redis.properties"
+      - "./etc/kafka/fundamentus_stock.json:/usr/lib/presto/etc/kafka/fundamentus_stock.json"
+      - "./etc/redis/fundamentus_stock.json:/usr/lib/presto/etc/redis/fundamentus_stock.json"
 networks:
   presto_network:
     external:

@@ -174,7 +174,7 @@ if __name__ == "__main__":
     KAFKA_TOPIC = args.topic
     STOCK_LIST = STOCK_STRING.split(',')
     # ["PETR4","VALE3","JBSS3","MGLU3","FLRY3","NATU3","ITUB4","ITSA4","RENT3","LREN3","GOLL4"]
-    # KAFKA_HOST = '10.142.0.44'
-    # KAFKA_TOPIC = 'Stocks'
+    # KAFKA_HOST = '10.142.15.209'
+    # KAFKA_TOPIC = 'stock'
     for stock_code in STOCK_LIST:
         main(stock_code, KAFKA_HOST, KAFKA_TOPIC)

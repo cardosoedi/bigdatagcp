@@ -29,7 +29,7 @@ print(f'KAFKA_TOPIC={KAFKA_TOPIC}')
 print(f'KEY_FIELD={KEY_FIELD}')
 
 # KAFKA_HOST = '10.142.0.14'
-# KAFKA_TOPIC = 'Stocks'
+# KAFKA_TOPIC = 'stock'
 # KEY_FIELD = 'papel'
 
 
@@ -74,7 +74,7 @@ def process(rdd):
                 try:
                     quinn.validate_presence_of_columns(df_s3, REQUIRED_FIELDS)
                     df_s3.write.format("org.apache.spark.sql.redis") \
-                        .option("table", KAFKA_TOPIC) \
+                        .option("table", f"{SOURCE}.{KAFKA_TOPIC}") \
                         .option("key.column", KEY_FIELD) \
                         .save(mode='append')
                     df_s3.write.format('parquet') \

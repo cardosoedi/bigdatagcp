@@ -35,7 +35,7 @@ gcloud beta compute --project=fia-tcc instances create kafka \
 ************************************************************************************************************************
 ### Subindo banco mysql para armazenar o metastore do hive (Cloud SQL)
 ```
-gcloud sql instances create hive-metastore2 \
+gcloud sql instances create hive-metastore1 \
 --database-version="MYSQL_5_7" \
 --activation-policy=ALWAYS \
 --zone us-east1-d
@@ -56,7 +56,7 @@ gcloud beta dataproc clusters create hive-cluster \
 --image-version 1.4-debian9 \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore2" \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore1" \
 --properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
@@ -145,8 +145,8 @@ gcloud beta dataproc clusters create validation \
 --image-version 1.4-debian9 \
 --optional-components ANACONDA,JUPYTER \
 --project fia-tcc \
---initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh','gs://fia-tcc-dataproc-metainfo/dataproc/dataproc_init.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
+--initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh','gs://fia-tcc-configurations/dataproc/dataproc_init.sh' \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore1" \
 --properties=^#^spark:spark.driver.core=1\
 #spark:spark.driver.memory=2g\
 #spark:spark.driver.memoryOverhead=1g\
@@ -156,7 +156,7 @@ gcloud beta dataproc clusters create validation \
 #spark:spark.executor.memoryOverhead=1g\
 #spark:spark.debug.maxToStringFields=300\
 #spark:spark.jars.packages=org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.5,com.redislabs:spark-redis:2.4.0\
-#spark:spark.redis.host=<your-kafka-ip>\
+#spark:spark.redis.host=10.142.15.209\
 #spark:spark.redis.port=6379
 ```
 
