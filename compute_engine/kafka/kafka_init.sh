@@ -37,15 +37,3 @@ sleep 10
 
 /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic stock &&
 /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic stockFallback
-
-# ===========================
-# Subir docker com redis
-# ===========================
-sudo apt -y -qq update &&
-sudo apt -y -qq upgrade &&
-sudo apt -y -qq install docker &&
-sudo apt -y -qq install docker-compose &&
-sudo apt -y -qq install redis-tools &&
-sudo apt -y -qq autoremove
-sudo docker pull redis:5.0.6 &&
-sudo docker run -d -p 6379:6379 -i -t redis:5.0.6

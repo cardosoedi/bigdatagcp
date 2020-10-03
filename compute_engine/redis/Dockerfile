@@ -1,54 +1,127 @@
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-FROM centos:centos7
-LABEL maintainer="Presto community <https://prestosql.io/community.html>"
+FROM debian:buster-slim
 
-ENV PRESTO_VERSION 341
-ENV PRESTO_HOME /usr/lib/presto
-ENV JAVA_HOME /usr/lib/jvm/zulu11
+# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+RUN groupadd -r -g 999 redis && useradd -r -g redis -u 999 redis
 
-ENV PRESTO_LOCATION=https://repo1.maven.org/maven2/io/prestosql/presto-server/${PRESTO_VERSION}/presto-server-${PRESTO_VERSION}.tar.gz
-ENV CLIENT_LOCATION=https://repo1.maven.org/maven2/io/prestosql/presto-cli/${PRESTO_VERSION}/presto-cli-${PRESTO_VERSION}-executable.jar
+# grab gosu for easy step-down from root
+# https://github.com/tianon/gosu/releases
+ENV GOSU_VERSION 1.12
+RUN set -eux; \
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends ca-certificates dirmngr gnupg wget; \
+	rm -rf /var/lib/apt/lists/*; \
+	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	export GNUPGHOME="$(mktemp -d)"; \
+	gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+	gpgconf --kill all; \
+	rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+	apt-mark auto '.*' > /dev/null; \
+	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	chmod +x /usr/local/bin/gosu; \
+	gosu --version; \
+	gosu nobody true
+
+ENV REDIS_VERSION 5.0.9
+ENV REDIS_DOWNLOAD_URL http://download.redis.io/releases/redis-5.0.9.tar.gz
+ENV REDIS_DOWNLOAD_SHA 53d0ae164cd33536c3d4b720ae9a128ea6166ebf04ff1add3b85f1242090cb85
+
+RUN set -eux; \
+	\
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		ca-certificates \
+		wget \
+		\
+		gcc \
+		libc6-dev \
+		make \
+	; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+	wget -O redis.tar.gz "$REDIS_DOWNLOAD_URL"; \
+	echo "$REDIS_DOWNLOAD_SHA *redis.tar.gz" | sha256sum -c -; \
+	mkdir -p /usr/src/redis; \
+	tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1; \
+	rm redis.tar.gz; \
+	\
+# disable Redis protected mode [1] as it is unnecessary in context of Docker
+# (ports are not automatically exposed when running inside Docker, but rather explicitly by specifying -p / -P)
+# [1]: https://github.com/redis/redis/commit/edd4d555df57dc84265fdfb4ef59a4678832f6da
+	grep -q '^#define CONFIG_DEFAULT_PROTECTED_MODE 1$' /usr/src/redis/src/server.h; \
+	sed -ri 's!^(#define CONFIG_DEFAULT_PROTECTED_MODE) 1$!\1 0!' /usr/src/redis/src/server.h; \
+	grep -q '^#define CONFIG_DEFAULT_PROTECTED_MODE 0$' /usr/src/redis/src/server.h; \
+# for future reference, we modify this directly in the source instead of just supplying a default configuration flag because apparently "if you specify any argument to redis-server, [it assumes] you are going to specify everything"
+# see also https://github.com/docker-library/redis/issues/4#issuecomment-50780840
+# (more exactly, this makes sure the default behavior of "save on SIGTERM" stays functional by default)
+	\
+	make -C /usr/src/redis -j "$(nproc)" all; \
+	make -C /usr/src/redis install; \
+	\
+# TODO https://github.com/redis/redis/pull/3494 (deduplicate "redis-server" copies)
+	serverMd5="$(md5sum /usr/local/bin/redis-server | cut -d' ' -f1)"; export serverMd5; \
+	find /usr/local/bin/redis* -maxdepth 0 \
+		-type f -not -name redis-server \
+		-exec sh -eux -c ' \
+			md5="$(md5sum "$1" | cut -d" " -f1)"; \
+			test "$md5" = "$serverMd5"; \
+		' -- '{}' ';' \
+		-exec ln -svfT 'redis-server' '{}' ';' \
+	; \
+	\
+	rm -r /usr/src/redis; \
+	\
+	apt-mark auto '.*' > /dev/null; \
+	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
+	find /usr/local -type f -executable -exec ldd '{}' ';' \
+		| awk '/=>/ { print $(NF-1) }' \
+		| sort -u \
+		| xargs -r dpkg-query --search \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -r apt-mark manual \
+	; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	\
+	redis-cli --version; \
+	redis-server --version
+
+RUN mkdir /data && chown redis:redis /data
+VOLUME /data
+WORKDIR /data
+
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+EXPOSE 6379
+CMD ["redis-server"]
+
+    © 2020 GitHub, Inc.
+    Terms
+    Privacy
+    Security
+    Status
+    Help
+
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
 
 
-RUN \
-    set -xeu && \
-    yum -y -q install curl && \
-    yum -y -q install https://cdn.azul.com/zulu/bin/zulu-repo-1.0.0-1.noarch.rpm && \
-    yum -y -q update && \
-    yum -y -q install zulu11 less && \
-    yum -q clean all && \
-    rm -rf /var/cache/yum && \
-    rm -rf /tmp/* /var/tmp/* && \
-    groupadd presto --gid 1000 && \
-    useradd presto --uid 1000 --gid 1000 && \
-    mkdir -p ${PRESTO_HOME} /data/presto && \
-    chown -R "presto:presto" ${PRESTO_HOME} /data/presto
 
-workdir ${PRESTO_HOME}
-
-RUN \
-    curl -o ${PRESTO_HOME}/presto-cli-${PRESTO_VERSION}-executable.jar ${CLIENT_LOCATION} && \
-    curl -o ${PRESTO_HOME}/presto-server-${PRESTO_VERSION}.tar.gz ${PRESTO_LOCATION} && \
-    tar -C ${PRESTO_HOME} -xzf ${PRESTO_HOME}/presto-server-${PRESTO_VERSION}.tar.gz && \
-    rm ${PRESTO_HOME}/presto-server-${PRESTO_VERSION}.tar.gz && \
-    cp -r ${PRESTO_HOME}/presto-server-${PRESTO_VERSION}/* . && \
-    mkdir -p {PRESTO_HOME}/etc/catalog && \
-    chmod +x ${PRESTO_HOME}
-
-EXPOSE 8080
-USER presto:presto
-ENV LANG en_US.UTF-8
-
-CMD ./bin/launcher --config=${PRESTO_HOME}/etc/config.properties --log-levels-file=${PRESTO_HOME}/etc/log.properties --node-config=${PRESTO_HOME}/etc/node.properties run
+sudo apt -y -qq update &&
+sudo apt -y -qq upgrade &&
+sudo apt -y -qq install docker &&
+sudo apt -y -qq install docker-compose &&
+sudo apt -y -qq install redis-tools &&
+sudo apt -y -qq autoremove
+sudo docker pull redis:5.0.6 &&
+sudo docker run -d -p 6379:6379 -i -t redis:5.0.6
