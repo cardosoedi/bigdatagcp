@@ -16,6 +16,27 @@ services:
       - "./etc/catalog/redis.properties:/usr/lib/presto/etc/catalog/redis.properties"
       - "./etc/kafka/fundamentus_stock.json:/usr/lib/presto/etc/kafka/fundamentus_stock.json"
       - "./etc/redis/fundamentus_stock.json:/usr/lib/presto/etc/redis/fundamentus_stock.json"
+
+  redis-server:
+    image: 'redis'
+    networks: ["presto_network"]
+    hostname: redis.presto_network
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:5.7
+    networks: ["presto_network"]
+    hostname: mysql.presto_network
+    volumes:
+      - ./db-data:/var/lib/mysql
+    environment:
+      - "MYSQL_ROOT_PASSWORD=airflow"
+      - "MYSQL_DATABASE=airflow"
+      - "MYSQL_USER=airflow"
+    ports:
+      - "3306:3306"
+
 networks:
   presto_network:
     external:
