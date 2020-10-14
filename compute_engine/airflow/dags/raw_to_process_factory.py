@@ -94,7 +94,7 @@ def create_dag(dag_id,
     return dag
 
 
-for dag_list in load_dags_from_yaml(os.path.dirname(__file__), 'kafka'):
+for dag_list in load_dags_from_yaml(os.path.dirname(__file__), 'kafka_old'):
     for dag in dag_list:
         for dag_id in dag.keys():
             dag_param = dag.get(dag_id).get('dag_param').get('raw_to_process_dag')

@@ -1,0 +1,66 @@
+version: '2'
+services:
+  prestosql:
+    build: prestosql
+    networks: ["lake_network"]
+    hostname: prestosql.lake_network
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./prestosql/etc/config.properties:/usr/lib/presto/etc/config.properties"
+      - "./prestosql/etc/node.properties:/usr/lib/presto/etc/node.properties"
+      - "./prestosql/etc/log.properties:/usr/lib/presto/etc/log.properties"
+      - "./prestosql/etc/jvm.config:/usr/lib/presto/etc/jvm.config"
+      - "./prestosql/etc/catalog/processed-zone.properties:/usr/lib/presto/etc/catalog/processed-zone.properties"
+      - "./prestosql/etc/catalog/kafka_old.properties:/usr/lib/presto/etc/catalog/kafka_old.properties"
+      - "./prestosql/etc/catalog/redis.properties:/usr/lib/presto/etc/catalog/redis.properties"
+      - "./prestosql/etc/kafka_old/fundamentus_stock.json:/usr/lib/presto/etc/kafka_old/fundamentus_stock.json"
+      - "./prestosql/etc/redis/fundamentus_stock.json:/usr/lib/presto/etc/redis/fundamentus_stock.json"
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    networks:
+      - lake_network
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    image: 'bitnami/kafka:latest'
+    networks:
+      - lake_network
+    ports:
+      - '9092:9092'
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+
+  redis-server:
+    image: redis:5.0.6
+    networks: ["lake_network"]
+    hostname: redis.lake_network
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:5.7
+    networks: ["lake_network"]
+    hostname: mysql.lake_network
+    volumes:
+      - ./db-data:/var/lib/mysql
+    environment:
+      - "MYSQL_ROOT_PASSWORD=airflow"
+      - "MYSQL_DATABASE=airflow"
+      - "MYSQL_USER=airflow"
+      - "MYSQL_PASSWORD=airflow"
+    ports:
+      - "3306:3306"
+
+networks:
+  lake_network:
+    external:
+      name: lake_network

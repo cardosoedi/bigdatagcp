@@ -36,7 +36,7 @@ RUN \
     mkdir -p ${PRESTO_HOME} /data/presto && \
     chown -R "presto:presto" ${PRESTO_HOME} /data/presto
 
-workdir ${PRESTO_HOME}
+WORKDIR ${PRESTO_HOME}
 
 RUN \
     curl -o ${PRESTO_HOME}/presto-cli-${PRESTO_VERSION}-executable.jar ${CLIENT_LOCATION} && \

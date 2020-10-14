@@ -165,8 +165,8 @@ def main(stock_code, kafka_host, topic_name):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--stocks', type=str, help='List of stock code to perform download of data')
-    parser.add_argument('-k', '--kafka', type=str, help='IP where your kafka server is running.')
-    parser.add_argument('-t', '--topic', type=str, help="A topic to be read from kafka server.")
+    parser.add_argument('-k', '--kafka_old', type=str, help='IP where your kafka_old server is running.')
+    parser.add_argument('-t', '--topic', type=str, help="A topic to be read from kafka_old server.")
     args = parser.parse_args()
 
     STOCK_STRING = args.stocks

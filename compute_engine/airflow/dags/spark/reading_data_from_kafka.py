@@ -13,8 +13,8 @@ from quinn.dataframe_validator import DataFrameMissingColumnError
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--source', type=str, help="Source's name of your dataset")
-parser.add_argument('--host', type=str, help='IP where your kafka server is running.')
-parser.add_argument('-t', '--topic', type=str, help='A topic to be read from kafka server.')
+parser.add_argument('--host', type=str, help='IP where your kafka_old server is running.')
+parser.add_argument('-t', '--topic', type=str, help='A topic to be read from kafka_old server.')
 parser.add_argument('-k', '--key', type=str,
                     help="Key name into your message that will be used to group data into the same dataset")
 

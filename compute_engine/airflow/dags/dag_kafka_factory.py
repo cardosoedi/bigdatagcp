@@ -48,7 +48,7 @@ def create_dag(dag_id,
                 'spark:spark.executor.memoryOverhead': '512M',
                 'spark:spark.default.parallelism': '1',
                 'spark:spark.debug.maxToStringFields': '300',
-                'spark:spark.jars.packages': 'org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.3,com.redislabs:spark-redis:2.4.0',
+                'spark:spark.jars.packages': 'org.apache.spark:spark-streaming-kafka_old-0-8-assembly_2.11:2.4.3,com.redislabs:spark-redis:2.4.0',
                 'spark:spark.redis.host': kafka_param.get('host'),
                 'spark:spark.redis.port': '6379',
             },
@@ -92,7 +92,7 @@ def create_dag(dag_id,
     return dag
 
 
-for dag_list in load_dags_from_yaml(os.path.dirname(__file__), 'kafka'):
+for dag_list in load_dags_from_yaml(os.path.dirname(__file__), 'kafka_old'):
     for dag in dag_list:
         for dag_id in dag.keys():
             dag_param = dag.get(dag_id).get('dag_param').get('kafka_dag')
