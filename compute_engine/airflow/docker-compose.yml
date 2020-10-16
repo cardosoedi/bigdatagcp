@@ -1,0 +1,45 @@
+version: '3.7'
+services:
+  mysql:
+    image: mysql:5.7
+    restart: always
+    networks: ["lake_network"]
+    hostname: mysql.lake_network
+    volumes:
+      - ./mysql/my.cnf:/etc/mysql/mysql.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=airflow"
+      - "MYSQL_DATABASE=airflow"
+      - "MYSQL_USER=airflow"
+      - "MYSQL_PASSWORD=airflow"
+    ports:
+      - "3306:3306"
+
+  airflow_webserver:
+    image: airflow
+    restart: always
+    build:
+        context: .
+        dockerfile: Dockerfile
+    ports:
+    - "8081:8080"
+    networks:
+      ["lake_network"]
+    hostname: airflow_webserver.lake_network
+    depends_on:
+      - mysql
+    command: webserver
+
+  airflow_scheduler:
+    image: airflow
+    restart: always
+    networks: ["lake_network"]
+    hostname: airflow_scheduler.lake_network
+    depends_on:
+      - airflow_webserver
+    command: scheduler
+
+networks:
+  lake_network:
+    driver: bridge
+    name: lake_network
