@@ -38,6 +38,8 @@ services:
       - ./airflow/dags:/opt/airflow/dags
     restart: always
     networks: ["lake_network"]
+    ports:
+      - "8793:8793"
     hostname: airflow_scheduler.lake_network
     depends_on:
       - airflow_webserver
@@ -64,28 +66,28 @@ services:
       - "./prestosql/etc/redis/fundamentus_stock.json:/usr/lib/presto/etc/redis/fundamentus_stock.json"
 
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
-    networks:
-      - lake_network
-    hostname: zookeeper.lake_network
+    image: kafka
+    restart: always
+    build:
+        context: kafka
+        dockerfile: Dockerfile
     ports:
-      - '2181:2181'
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+    - "2181:2181"
+    networks:
+      ["lake_network"]
+    hostname: zookeeper.lake_network
+    command: zookeeper
 
   kafka:
-    image: 'bitnami/kafka:latest'
-    networks:
-      - lake_network
+    image: kafka
+    restart: always
+    networks: ["lake_network"]
     hostname: kafka.lake_network
     ports:
-      - '9092:9092'
-    environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
-      - ALLOW_PLAINTEXT_LISTENER=yes
+      - "9092:9092"
     depends_on:
       - zookeeper
+    command: kafka_broker
 
   redis-server:
     image: redis:5.0.6
