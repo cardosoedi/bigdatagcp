@@ -25,7 +25,7 @@ def create_dag(dag_id,
 
         inicio = DummyOperator(task_id='inicio')
 
-        cmd_command = f"python3 /root/airflow/dags/web_scraper/fundamentus.py --kafka {kafka_param.get('host')} --topic {kafka_param.get('topic')} --stocks {stock_list}"
+        cmd_command = f"python3 /opt/airflow/dags/web_scraper/fundamentus.py --kafka {kafka_param.get('host')} --topic {kafka_param.get('topic')} --stocks {stock_list}"
         executa_web_scraper = BashOperator(
             task_id='executa_web_scraper',
             bash_command=cmd_command)
