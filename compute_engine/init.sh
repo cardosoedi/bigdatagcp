@@ -6,6 +6,7 @@ docker pull centos:centos7
 docker pull redis:5.0.6
 docker pull mysql:5.7
 docker pull python:3.7-slim-buster
+docker pull metabase/metabase:latest
 
 docker-compose up -d
 

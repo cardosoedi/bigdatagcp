@@ -65,6 +65,15 @@ services:
       - "./prestosql/etc/kafka/fundamentus_stock.json:/usr/lib/presto/etc/kafka/fundamentus_stock.json"
       - "./prestosql/etc/redis/fundamentus_stock.json:/usr/lib/presto/etc/redis/fundamentus_stock.json"
 
+  metabase:
+    image: metabase/metabase
+    networks: [ "lake_network" ]
+    hostname: metabase.lake_network
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prestosql
+
   zookeeper:
     image: kafka
     restart: always
