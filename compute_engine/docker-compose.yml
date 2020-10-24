@@ -74,29 +74,20 @@ services:
     depends_on:
       - prestosql
 
-  zookeeper:
-    image: kafka
-    restart: always
-    build:
-        context: kafka
-        dockerfile: Dockerfile
-    ports:
-    - "2181:2181"
-    networks:
-      ["lake_network"]
-    hostname: zookeeper.lake_network
-    command: zookeeper
-
-  kafka:
-    image: kafka
-    restart: always
-    networks: ["lake_network"]
-    hostname: kafka.lake_network
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    command: kafka_broker
+#  kafka:
+#    image: kafka
+#    build:
+#      context: kafka
+#      dockerfile: Dockerfile
+#    restart: always
+#    volumes:
+#      - "./kafka/server.properties:/opt/kafka/config/server.properties"
+#    networks: ["lake_network"]
+#    hostname: kafka.lake_network
+#    ports:
+#      - "2181:2181"
+#      - "9092:9092"
+#    command: kafka_broker
 
   redis-server:
     image: redis:5.0.6

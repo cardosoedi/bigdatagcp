@@ -28,6 +28,7 @@ print(f'KAFKA_HOST={KAFKA_HOST}')
 print(f'KAFKA_TOPIC={KAFKA_TOPIC}')
 print(f'KEY_FIELD={KEY_FIELD}')
 
+# SOURCE = 'fundamentus'
 # KAFKA_HOST = '10.142.0.14'
 # KAFKA_TOPIC = 'stock'
 # KEY_FIELD = 'papel'
