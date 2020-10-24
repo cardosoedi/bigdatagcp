@@ -11,7 +11,7 @@
 ************************************************************************************************************************
 ### Subindo banco mysql para armazenar o metastore do hive (Cloud SQL)
 ```
-gcloud sql instances create hive-metastore \
+gcloud sql instances create hive-metastore3 \
 --database-version="MYSQL_5_7" \
 --activation-policy=ALWAYS \
 --zone us-east1-d
@@ -32,7 +32,7 @@ gcloud beta dataproc clusters create hive-cluster \
 --image-version 1.4-debian9 \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore3" \
 --properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
@@ -47,6 +47,7 @@ BigDataGcp/compute_engine/prestosql/etc/catalog/processed-zone.properties
 gcloud beta compute --project=fia-tcc instances create platform \
 --zone=us-east1-b \
 --machine-type=e2-standard-8 \
+--metadata startup-script-url=gs://fia-tcc-configurations/compute_engine/init.sh \
 --subnet=default \
 --network-tier=PREMIUM \
 --maintenance-policy=MIGRATE \
@@ -115,7 +116,7 @@ gcloud beta dataproc clusters create validation \
 --optional-components ANACONDA,JUPYTER \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh','gs://fia-tcc-configurations/dataproc/dataproc_init.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore3" \
 --properties=^#^spark:spark.driver.core=1\
 #spark:spark.driver.memory=2g\
 #spark:spark.driver.memoryOverhead=1g\
@@ -125,7 +126,7 @@ gcloud beta dataproc clusters create validation \
 #spark:spark.executor.memoryOverhead=1g\
 #spark:spark.debug.maxToStringFields=300\
 #spark:spark.jars.packages=org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.5,com.redislabs:spark-redis:2.4.0\
-#spark:spark.redis.host=10.142.0.46\
+#spark:spark.redis.host=10.142.0.56\
 #spark:spark.redis.port=6379
 ```
 

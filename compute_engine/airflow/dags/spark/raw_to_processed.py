@@ -20,6 +20,8 @@ spark = SparkSession \
     .enableHiveSupport() \
     .getOrCreate()
 
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {SOURCE}")
+
 window = Window.partitionBy(KEY).orderBy("process_date")
 
 df_teste = spark.read.parquet(f'gs://fia-tcc-raw-zone/{SOURCE}/{DATASET}')
