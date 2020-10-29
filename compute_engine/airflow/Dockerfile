@@ -33,7 +33,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 RUN chown -R airflow: ${AIRFLOW_HOME}
 
-EXPOSE 8080 8793
+EXPOSE 8081 8793
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
 

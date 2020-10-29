@@ -31,7 +31,15 @@ class FieldsTreatment:
                 result[k] = v
         return result
 
-    def treat_all_fields(self, stock):
+    @staticmethod
+    def _remove_hifen(stock):
+        for k, v in stock.items():
+            if v == '-':
+                stock[k] = None
+        return stock
+
+    @classmethod
+    def treat_all_fields(cls, stock):
         num_fields = ['cotacao',
                       'min_52_sem',
                       'max_52_sem',
@@ -57,10 +65,11 @@ class FieldsTreatment:
                       'lucro_liquido',
                       'balanco_patrimonial']
 
-        stock = self._date_fields(stock, 'ult_balanco_processado')
-        stock = self._date_fields(stock, 'data_ult_cot')
+        stock = cls._remove_hifen(stock)
+        stock = cls._date_fields(stock, 'ult_balanco_processado')
+        stock = cls._date_fields(stock, 'data_ult_cot')
         for field in int_fields:
-            stock = self._integer_fields(stock, field)
+            stock = cls._integer_fields(stock, field)
         for field in num_fields:
-            stock = self._number_fields(stock, field)
+            stock = cls._number_fields(stock, field)
         return stock
