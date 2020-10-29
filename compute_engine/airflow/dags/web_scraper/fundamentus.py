@@ -7,7 +7,7 @@ from json import dumps
 from bs4 import BeautifulSoup
 from kafka import KafkaProducer
 from requests.exceptions import ConnectionError
-from stock_schema import stock_fields
+from stock_schema import get_stock_template
 
 
 def download_html(url, numero_tentativas=2):
@@ -60,7 +60,8 @@ def table_without_header(html_table):
                 for data_field in column.find_all('span'):
                     data_raw = data_field
                     data = data_raw.text.replace('\n', '').strip()
-                values[label] = remove_acento(data) if data else 'null'
+                    if data and len(data) != 0:
+                        values[label] = remove_acento(data)
     return values
 
 
@@ -78,7 +79,8 @@ def table_header(html_table):
                 else:
                     for data_field in column.find_all('span'):
                         data = data_field.text.replace('\n', '').strip()
-                    values[label] = remove_acento(data) if data else 'null'
+                        if data and len(data) != 0:
+                            values[label] = remove_acento(data)
     return values
 
 
@@ -96,7 +98,8 @@ def table_header2(html_table):
                 else:
                     for data_field in column.find_all('span'):
                         data = data_field.text.replace('\n', '').strip()
-                    values[label] = remove_acento(data) if data else 'null'
+                        if data and len(data) != 0:
+                            values[label] = remove_acento(data)
     return values
 
 
@@ -114,7 +117,8 @@ def table_double_header(html_table):
                 else:
                     for data_field in column.find_all('span'):
                         data = data_field.text.replace('\n', '').strip()
-                    values[label] = remove_acento(data) if data else 'null'
+                        if data and len(data) != 0:
+                            values[label] = remove_acento(data)
     return values
 
 
@@ -133,7 +137,7 @@ def parse_html(html):
         '4': table_double_header
     }
 
-    all_data = stock_fields
+    all_data = get_stock_template()
     for table_number, table in enumerate(tables):
         # table_id = 'table_'+str(table_number)
         all_data.update(process_type[str(table_number)](table))
@@ -156,6 +160,7 @@ def main(stock_code, kafka_host, topic_name):
     html = download_html(url)
     data_from_html = parse_html(html)
     if data_from_html:
+        data_from_html = treat_all_fields(data_from_html)
         send_to_kafka(data_from_html, kafka_host, topic_name)
     else:
         print(f'Nenhum papel encontrado!')
