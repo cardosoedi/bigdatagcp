@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from kafka import KafkaProducer
 from requests.exceptions import ConnectionError
 from stock_schema import get_stock_template
+from fields_treatment import FieldsTreatment
 
 
 def download_html(url, numero_tentativas=2):
@@ -160,8 +161,9 @@ def main(stock_code, kafka_host, topic_name):
     html = download_html(url)
     data_from_html = parse_html(html)
     if data_from_html:
-        data_from_html = treat_all_fields(data_from_html)
-        send_to_kafka(data_from_html, kafka_host, topic_name)
+        data_from_html = FieldsTreatment().treat_all_fields(data_from_html)
+        print(data_from_html)
+        # send_to_kafka(data_from_html, kafka_host, topic_name)
     else:
         print(f'Nenhum papel encontrado!')
 
