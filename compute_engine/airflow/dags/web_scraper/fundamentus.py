@@ -162,8 +162,7 @@ def main(stock_code, kafka_host, topic_name):
     data_from_html = parse_html(html)
     if data_from_html:
         data_from_html = FieldsTreatment.treat_all_fields(data_from_html)
-        print(data_from_html)
-        # send_to_kafka(data_from_html, kafka_host, topic_name)
+        send_to_kafka(data_from_html, kafka_host, topic_name)
     else:
         print(f'Nenhum papel encontrado!')
 

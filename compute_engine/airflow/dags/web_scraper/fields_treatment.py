@@ -12,7 +12,7 @@ class FieldsTreatment:
     def _number_fields(stock, field_prefix):
         result = dict()
         for k, v in stock.items():
-            if isinstance(v, str) and k.startswith(field_prefix):
+            if isinstance(v, str) and k.startswith(field_prefix) and len(v) > 0:
                 if v.find('%') >= 0:
                     result[k + '%'] = float(v.replace('%', '').replace(',', '.'))
                 else:
@@ -25,7 +25,7 @@ class FieldsTreatment:
     def _integer_fields(stock, field_prefix):
         result = dict()
         for k, v in stock.items():
-            if isinstance(v, str) and k.startswith(field_prefix):
+            if isinstance(v, str) and k.startswith(field_prefix) and len(v) > 0:
                 result[k] = int(v.replace(',', '.'))
             else:
                 result[k] = v
@@ -35,7 +35,7 @@ class FieldsTreatment:
     def _remove_hifen(stock):
         for k, v in stock.items():
             if v == '-':
-                stock[k] = None
+                stock[k] = ''
         return stock
 
     @classmethod
