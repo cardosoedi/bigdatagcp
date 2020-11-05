@@ -1,0 +1,549 @@
+{
+   "type":"struct",
+   "fields":[
+      {
+         "name":"balanco_patrimonial_ativo",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_ativo_circulante",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_cart_de_credito",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_depositos",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_disponibilidades",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_div_bruta",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_div_liquida",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"balanco_patrimonial_patrim_liq",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"cotacao",
+         "type":"decimal(10,2)",
+         "nullable":false,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"data_ult_cot",
+         "type":"timestamp",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"ebit_ultimos_12_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"ebit_ultimos_3_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"empresa",
+         "type":"string",
+         "nullable":false,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_cres_rec_5a_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_div_br_patrim",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_div_yield_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_ebit_ativo_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_ev_ebit",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_ev_ebitda",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_giro_ativos",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_liquidez_corr",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_lpa",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_marg_bruta_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_marg_ebit_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_marg_liquida_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_pativ_circ_liq",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_pativos",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_pcap_giro",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_pebit",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_pl",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_psr",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_pvp",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_roe_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_roic_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"indicadores_fundamentalistas_vpa",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"lucro_liquido_ultimos_12_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"lucro_liquido_ultimos_3_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"max_52_sem",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"min_52_sem",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"nro_acoes",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_12_meses_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2012_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2013_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2014_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2015_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2016_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2017_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2018_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2019_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_2020_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_30_dias_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_dia_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"oscilacoes_mes_perc",
+         "type":"decimal(10,2)",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"papel",
+         "type":"string",
+         "nullable":false,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"process_date",
+         "type":"timestamp",
+         "nullable":false,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"rec_servicos_ultimos_12_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"rec_servicos_ultimos_3_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"receita_liquida_ultimos_12_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"receita_liquida_ultimos_3_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"result_int_financ_ultimos_12_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"result_int_financ_ultimos_3_meses",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"setor",
+         "type":"string",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"subsetor",
+         "type":"string",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"tipo",
+         "type":"string",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"ult_balanco_processado",
+         "type":"timestamp",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"valor_da_firma",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"valor_de_mercado",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      },
+      {
+         "name":"vol_med_2m",
+         "type":"long",
+         "nullable":true,
+         "metadata":{
+
+         }
+      }
+   ]
+}

@@ -14,7 +14,7 @@ class FieldsTreatment:
         for k, v in stock.items():
             if isinstance(v, str) and k.startswith(field_prefix) and len(v) > 0:
                 if v.find('%') >= 0:
-                    result[k + '%'] = float(v.replace('%', '').replace(',', '.'))
+                    result[k] = float(v.replace('%', '').replace(',', '.'))
                 else:
                     result[k] = float(v.replace(',', '.'))
             else:
@@ -32,10 +32,37 @@ class FieldsTreatment:
         return result
 
     @staticmethod
-    def _remove_hifen(stock):
+    def _remove_hifen_values(stock):
         for k, v in stock.items():
             if v == '-':
-                stock[k] = ''
+                stock[k] = None
+        return stock
+
+    @staticmethod
+    def _rename_percent_fields(stock):
+        field_names = ['indicadores_fundamentalistas_cres_rec_5a',
+                       'indicadores_fundamentalistas_div_yield',
+                       'indicadores_fundamentalistas_ebit_ativo',
+                       'indicadores_fundamentalistas_marg_bruta',
+                       'indicadores_fundamentalistas_marg_ebit',
+                       'indicadores_fundamentalistas_marg_liquida',
+                       'indicadores_fundamentalistas_roe',
+                       'indicadores_fundamentalistas_roic',
+                       'oscilacoes_12_meses',
+                       'oscilacoes_2012',
+                       'oscilacoes_2013',
+                       'oscilacoes_2014',
+                       'oscilacoes_2015',
+                       'oscilacoes_2016',
+                       'oscilacoes_2017',
+                       'oscilacoes_2018',
+                       'oscilacoes_2019',
+                       'oscilacoes_2020',
+                       'oscilacoes_30_dias',
+                       'oscilacoes_dia',
+                       'oscilacoes_mes']
+        for name in field_names:
+            stock[name + "_perc"] = stock.pop(name)
         return stock
 
     @classmethod
@@ -43,17 +70,8 @@ class FieldsTreatment:
         num_fields = ['cotacao',
                       'min_52_sem',
                       'max_52_sem',
-                      'nro_acoes',
-                      'vol_med_2m',
-                      'valor',
-                      'result_int',
-                      'rec_servicos',
-                      'ebit_ultimos',
-                      'receita_liquida',
-                      'lucro_liquido',
                       'indicadores_fundamentalistas',
-                      'oscilacoes',
-                      'balanco_patrimonial']
+                      'oscilacoes']
 
         int_fields = ['nro_acoes',
                       'vol_med_2m',
@@ -65,11 +83,12 @@ class FieldsTreatment:
                       'lucro_liquido',
                       'balanco_patrimonial']
 
-        stock = cls._remove_hifen(stock)
+        stock = cls._remove_hifen_values(stock)
         stock = cls._date_fields(stock, 'ult_balanco_processado')
         stock = cls._date_fields(stock, 'data_ult_cot')
         for field in int_fields:
             stock = cls._integer_fields(stock, field)
         for field in num_fields:
             stock = cls._number_fields(stock, field)
+        stock = cls._rename_percent_fields(stock)
         return stock

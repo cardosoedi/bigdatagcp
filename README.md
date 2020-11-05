@@ -11,7 +11,7 @@
 ************************************************************************************************************************
 ### Subindo banco mysql para armazenar o metastore do hive (Cloud SQL)
 ```
-gcloud sql instances create hive-metastore4 \
+gcloud sql instances create hive-metastore7 \
 --database-version="MYSQL_5_7" \
 --activation-policy=ALWAYS \
 --zone us-east1-d
@@ -32,7 +32,7 @@ gcloud beta dataproc clusters create hive-cluster \
 --image-version 1.4-debian9 \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore4" \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore7" \
 --properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
@@ -55,7 +55,7 @@ gcloud beta compute --project=fia-tcc instances create platform \
 --image-project=ubuntu-os-cloud \
 --boot-disk-size=100GB \
 --boot-disk-type=pd-standard \
---boot-disk-device-name=kafka_disk \
+--boot-disk-device-name=platform_disk \
 --reservation-affinity=any \
 --service-account sa-fia-tcc@fia-tcc.iam.gserviceaccount.com  \
 --scopes https://www.googleapis.com/auth/cloud-platform \
@@ -116,7 +116,7 @@ gcloud beta dataproc clusters create validation \
 --optional-components ANACONDA,JUPYTER \
 --project fia-tcc \
 --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh','gs://fia-tcc-configurations/dataproc/dataproc_init.sh' \
---metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore4" \
+--metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore7" \
 --properties=^#^spark:spark.driver.core=1\
 #spark:spark.driver.memory=2g\
 #spark:spark.driver.memoryOverhead=1g\
@@ -125,8 +125,8 @@ gcloud beta dataproc clusters create validation \
 #spark:spark.executor.memory=4g\
 #spark:spark.executor.memoryOverhead=1g\
 #spark:spark.debug.maxToStringFields=300\
-#spark:spark.jars.packages=org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.4.5,com.redislabs:spark-redis:2.4.0\
-#spark:spark.redis.host=10.142.15.200\
+#spark:spark.jars.packages=org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.redislabs:spark-redis:2.4.0\
+#spark:spark.redis.host=10.142.15.222\
 #spark:spark.redis.port=6379
 ```
 

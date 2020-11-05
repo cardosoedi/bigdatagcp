@@ -17,14 +17,15 @@ services:
 
   airflow_webserver:
     image: airflow
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
     restart: always
     build:
         context: airflow
         dockerfile: Dockerfile
+    volumes:
+      - ./airflow/airflow.cfg:/opt/airflow/airflow.cfg
+      - ./airflow/dags:/opt/airflow/dags
     ports:
-    - "8081:8081"
+        - "8081:8080"
     networks:
       ["lake_network"]
     hostname: airflow_webserver.lake_network
@@ -34,12 +35,11 @@ services:
 
   airflow_scheduler:
     image: airflow
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
     restart: always
     networks: ["lake_network"]
-    ports:
-      - "8793:8793"
+    volumes:
+      - ./airflow/airflow.cfg:/opt/airflow/airflow.cfg
+      - ./airflow/dags:/opt/airflow/dags
     hostname: airflow_scheduler.lake_network
     depends_on:
       - airflow_webserver

@@ -6,7 +6,7 @@ services:
     networks: ["lake_network"]
     hostname: mysql.lake_network
     volumes:
-      - ./mysql/my.cnf:/etc/mysql/mysql.cnf
+      - ../mysql/my.cnf:/etc/mysql/mysql.cnf
     environment:
       - "MYSQL_ROOT_PASSWORD=airflow"
       - "MYSQL_DATABASE=airflow"
@@ -21,8 +21,11 @@ services:
     build:
         context: .
         dockerfile: Dockerfile
+    volumes:
+      - ./airflow.cfg:/opt/airflow/airflow.cfg
+      - ./dags:/opt/airflow/dags
     ports:
-    - "8081:8081"
+        - "8081:8080"
     networks:
       ["lake_network"]
     hostname: airflow_webserver.lake_network
@@ -34,6 +37,9 @@ services:
     image: airflow
     restart: always
     networks: ["lake_network"]
+    volumes:
+      - ./airflow.cfg:/opt/airflow/airflow.cfg
+      - ./dags:/opt/airflow/dags
     hostname: airflow_scheduler.lake_network
     depends_on:
       - airflow_webserver

@@ -32,7 +32,7 @@ sudo systemctl start kafka
 sleep 10
 
 /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic stock
-/opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic stocksFallback
+/opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic stockFallback
 
 
 sudo apt -y -qq install apt-transport-https ca-certificates curl software-properties-common &&
