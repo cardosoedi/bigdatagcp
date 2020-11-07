@@ -1,16 +1,19 @@
 import os
 from datetime import timedelta, datetime
 from airflow.models import DAG
+from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow_utils import task_fail_slack_alert, load_dags_from_yaml
+
+kafka_host = BaseHook.get_connection('kafka').host
 
 
 def create_dag(dag_id,
                schedule,
                default_args,
                dag_param):
-    kafka_param = dag_param.get('kafka_param')
+    kafka_topic = dag_param.get('kafka_topic')
     stocks = dag_param.get('stocks')
     stock_list = ','.join(stocks)
 
@@ -25,7 +28,7 @@ def create_dag(dag_id,
 
         inicio = DummyOperator(task_id='inicio')
 
-        cmd_command = f"python3 /opt/airflow/dags/web_scraper/fundamentus.py --kafka {kafka_param.get('host')} --topic {kafka_param.get('topic')} --stocks {stock_list}"
+        cmd_command = f"python3 /opt/airflow/dags/web_scraper/fundamentus.py --kafka {kafka_host} --topic {kafka_topic} --stocks {stock_list}"
         executa_web_scraper = BashOperator(
             task_id='executa_web_scraper',
             bash_command=cmd_command)

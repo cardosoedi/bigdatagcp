@@ -6,13 +6,14 @@ from airflow_utils import task_fail_slack_alert, load_dags_from_yaml, normalize_
 from airflow.hooks.base_hook import BaseHook
 
 gcp_project_id = BaseHook.get_connection('google_cloud_default').extra_dejson['extra__google_cloud_platform__project']
+kafka_host = BaseHook.get_connection('kafka').host
 
 
 def create_dag(dag_id,
                schedule,
                default_args,
                dag_param):
-    kafka_param = dag_param.get('kafka_param')
+    kafka_topic = dag_param.get('kafka_topic')
     spark_param = dag_param.get('spark_param')
 
     dag_id = dag_id + '-stream'
@@ -37,7 +38,7 @@ def create_dag(dag_id,
                                'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh'],
             init_action_timeout='10m',
             image_version='1.4-debian9',
-            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore7'},
+            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore9'},
             properties={
                 'spark:spark.driver.core': '1',
                 'spark:spark.driver.memory': '3584M',
@@ -49,7 +50,7 @@ def create_dag(dag_id,
                 'spark:spark.default.parallelism': '1',
                 'spark:spark.debug.maxToStringFields': '300',
                 'spark:spark.jars.packages': 'org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.redislabs:spark-redis:2.4.0',
-                'spark:spark.redis.host': kafka_param.get('host'),
+                'spark:spark.redis.host': kafka_host,
                 'spark:spark.redis.port': '6379',
             },
             num_masters=1,
@@ -73,8 +74,8 @@ def create_dag(dag_id,
             main='gs://fia-tcc-configurations/compute_engine/airflow/dags/spark/reading_data_from_kafka.py',
             arguments=[
                 f"--source={spark_param.get('source')}",
-                f"--host={kafka_param.get('host')}",
-                f"--topic={kafka_param.get('topic')}",
+                f"--host={kafka_host}",
+                f"--topic={kafka_topic}",
                 f"--key={spark_param.get('partitionBy', '')}"],
             cluster_name=dataproc_clustername,
             region='us-east1',

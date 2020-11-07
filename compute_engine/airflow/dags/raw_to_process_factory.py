@@ -12,7 +12,7 @@ def create_dag(dag_id,
                schedule,
                default_args,
                dag_param):
-    kafka_param = dag_param.get('kafka_param')
+    kafka_topic = dag_param.get('kafka_topic')
     spark_param = dag_param.get('spark_param')
 
     dag_id = dag_id+'-raw-to-process'
@@ -37,7 +37,7 @@ def create_dag(dag_id,
                                'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh'],
             init_action_timeout='10m',
             image_version='1.4-debian9',
-            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore7'},
+            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore9'},
             properties={
                 'spark:spark.driver.core': '1',
                 'spark:spark.driver.memory': '3584M',
@@ -78,7 +78,7 @@ def create_dag(dag_id,
                 task_id='spark_raw_to_process',
                 main='gs://fia-tcc-configurations/compute_engine/airflow/dags/spark/raw_to_processed.py',
                 arguments=[f"--source={spark_param.get('source')}",
-                           f"--dataset={kafka_param.get('topic')}",
+                           f"--dataset={kafka_topic}",
                            f"--key={spark_param.get('key')}"],
                 cluster_name=dataproc_clustername,
                 region='us-east1',

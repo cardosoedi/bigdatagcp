@@ -1,4 +1,4 @@
-fundamentus-stocks:
+fundamentus-stock:
     dag_param:
         kafka_dag:
             slack_channel: 'kafka_alert'
@@ -9,9 +9,7 @@ fundamentus-stocks:
             schedule: '*/5 * * * *'
             catchup: False
         owner: 'Fia TCC'
-    kafka_param:
-        host: '10.142.15.222'
-        topic: 'stock'
+    kafka_topic: 'stock'
     spark_param:
         partitionBy: 'papel'
         key: 'papel'

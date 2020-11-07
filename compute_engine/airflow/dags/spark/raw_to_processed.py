@@ -35,7 +35,7 @@ spark = SparkSession \
 
 spark.sql(f"CREATE DATABASE IF NOT EXISTS {SOURCE}")
 
-window = Window.partitionBy(KEY).orderBy("process_date")
+window = Window.partitionBy(KEY).orderBy("process_date", ascending=False)
 
 df_raw = spark.read.format('parquet').schema(dataset_schema).load(f'gs://fia-tcc-raw-zone/{SOURCE}/{DATASET}')
 ranked = df_raw.withColumn("rank", rank().over(window))
