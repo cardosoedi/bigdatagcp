@@ -1,14 +1,22 @@
 ### Pré requisitos para execução dos scripts
 
-1. Crie um login no google cloud plataform e adicione um projeto chamado *fia-tcc*.
-2. Crie um bucket chamado *fia-tcc-configurations* para subir os arquivos do projeto.
-3. Crie uma service account chamada *sa-fia-tcc* com permissões de owner do projeto.  
-   Obs: Salve o arquivo json para uso futuro na criação de conexão no airflow.
-4. Instale o sdk do google (gsutils) na sua máquina. Veja como nesse [link.](https://cloud.google.com/storage/docs/gsutil_install) 
-5. Copie os diretórios *compute_engine* e *dataproc* para a raiz do seu bucket gerado no passo 2.
-5. Crie 3 buckets adicionais para receber os dados e logs sendo eles:
-    *fia-tcc-logs*, *fia-tcc-processed-zone*, *fia-tcc-raw-zone*
-6. Abra um terminal ou prompt de commando e execute os comandos abaixo.
+1. Crie um login no [google cloud plataform](https://cloud.google.com/) e adicione um projeto chamado *fia-tcc*. [Veja como!](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)
+2. Crie 4 buckets necessários para o projeto: *fia-tcc-configurations*, *fia-tcc-logs*, *fia-tcc-processed-zone*, *fia-tcc-raw-zone*. [Veja como!](https://cloud.google.com/storage/docs/creating-buckets)
+3. Acesse a página de [service account](https://console.cloud.google.com/iam-admin/serviceaccounts), escolha o projeto criado no primeiro passo e crie uma nova SA  
+chamada *sa-fia-tcc* com permissão de **Project Editor**.
+   1. Após a criação da SA, ainda na página, vá em *actions* e escolha *create key* com a opção de chave **Json**.  
+   2. Salve o arquivo json para uso futuro na criação de conexão no airflow.
+4. Instale o sdk do google (gsutils) na sua máquina. [Veja como!](https://cloud.google.com/storage/docs/gsutil_install) 
+5. Copie os diretórios *compute_engine* e *dataproc* para a raiz do bucket *fia-tcc-configurations*.
+    ```
+    > gsutil -m cp -r ./compute_engine gs://fia-tcc-configurations/
+    > gsutil -m cp -r ./dataproc gs://fia-tcc-configurations/
+    ```
+6. Copie o diretório *notebooks* para raiz do bucket *fia-tcc-logs*.
+    ```
+    > gsutil -m cp -r ./notebooks gs://fia-tcc-logs/
+    ```
+7. Abra um terminal ou prompt de commando e execute os comandos abaixo.
 
 
 ************************************************************************************************************************
@@ -126,7 +134,7 @@ Para executar os comandos abaixo, abra novos terminais ou prompt de comando e ex
 Com os tuneis abertos, você já deve conseguir acessar as UIs disponíveis, sendo elas:
 
 | Ferramenta | UI |
-| :---: | :---: |
+| :--- | :---: |
 | Airflow | http://localhost:8081 |
 | Metabase | http://localhost:3000 |
 | PrestoSQL | http://localhost:8080 |
@@ -137,7 +145,7 @@ Com os tuneis abertos, você já deve conseguir acessar as UIs disponíveis, sen
 - Crie uma connection chamada **google_cloud_default** com os valores abaixo:
 
     | Campo             | Valor |
-    | :---:             | :---: |
+    | :---             | :--- |
     | Conn Type         | Google Cloud Platform|
     | Project Id        | fia-tcc |
     | Keyfile JSON      | Adicione o conteúdo do arquivo json gerado ao criar o usuário de serviço|
@@ -152,7 +160,7 @@ Com os tuneis abertos, você já deve conseguir acessar as UIs disponíveis, sen
  - Criar uma connection **slack_conn** com os valores abaixo:
  
     | Campo     | Valor |
-    | :---:     | :---: |
+    | :---     | :---: |
     | Login     | Adicione um canal default para receber seus alertas |
     | Password  | Adicione o Bot User OAuth Access Token gerado ao criar o bot no slack |  
 
@@ -166,6 +174,27 @@ tópico kafka definido no yaml.
   
 Com o comando abaixo você poderá acessar os dados salvos no bucket do GCS e no Redis via jupyter.
 ************************************************************************************************************************
+
+## Configurações na UI do Metabase
+Ao acessar a UI do metabase, você precisará fazer um *set up* para acessar as funcionalidades do mesmo.  
+Você pode fazer o set up seguindo os passos desse [link](https://www.metabase.com/docs/latest/setting-up-metabase.html) da documentação oficial.
+
+No segundo passo você pode configurar a conexão com o database, que será sua fonte para análises.  
+Vamos então conecta-lo ao nosso serviço de presto, preenchendo os campos com os valores abaixo:
+
+|  |  |
+| :--- | :--- |
+| Type: | Presto |
+| Name: | Identificador da origem de sua preferência |
+| Host: | prestosql.lake_network |
+| Port: | 8080 |
+| Database Name: | kafka |
+| Database User Name: | usr_metabase |
+| Database Password: | Não é necessário |
+
+
+************************************************************************************************************************
+
 ### Criar um cluster com Jupyter Notebook para exploração dos dados
 __no windows trocar ^ por ^^^^__
 ```
@@ -201,6 +230,7 @@ __no windows trocar ^ por ^^^^__
 
 - Acesse seu cluster criado acima através desse [link](https://console.cloud.google.com/dataproc/clusters/validation) 
 - Acessa a aba *Interfaces Web* e então click no link *Jupyter*.  
-Aparecerá uma janela com link de redirecionamento, click nele e o jupyter notebook está pronto para uso.  
- 
+    Aparecerá uma janela com link de redirecionamento, click nele e o jupyter notebook está pronto para uso.
+- Já na UI do jupyter, aparecerá a opção de acessar os notebook do bucket como um diretório chamado *GCS*.  
+    Clicando nele veremos o notebook que carregamos no passo iniciais (passo 6).
 ************************************************************************************************************************
