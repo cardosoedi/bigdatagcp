@@ -3,9 +3,9 @@ import argparse
 from io import StringIO
 from google.cloud import storage
 from pyspark.sql import types as st
+from pyspark.sql import functions as sf
 from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
-from pyspark.sql.functions import rank
 
 # import sys; sys.argv=['']; del sys
 parser = argparse.ArgumentParser()
@@ -35,9 +35,9 @@ spark = SparkSession \
 
 spark.sql(f"CREATE DATABASE IF NOT EXISTS {SOURCE}")
 
-window = Window.partitionBy(KEY).orderBy("process_date", ascending=False)
+window = Window.partitionBy(KEY).orderBy(sf.desc("process_date"))
 
 df_raw = spark.read.format('parquet').schema(dataset_schema).load(f'gs://fia-tcc-raw-zone/{SOURCE}/{DATASET}')
-ranked = df_raw.withColumn("rank", rank().over(window))
+ranked = df_raw.withColumn("rank", sf.rank().over(window))
 df_processed = ranked.where('rank == 1').drop('rank')
 df_processed.write.mode('overwrite').saveAsTable(f"{SOURCE}.{DATASET}")
