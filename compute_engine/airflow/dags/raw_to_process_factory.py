@@ -37,7 +37,7 @@ def create_dag(dag_id,
                                'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh'],
             init_action_timeout='10m',
             image_version='1.4-debian9',
-            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore9'},
+            metadata={'hive-metastore-instance': 'fia-tcc:us-east1:hive-metastore10'},
             properties={
                 'spark:spark.driver.core': '1',
                 'spark:spark.driver.memory': '3584M',

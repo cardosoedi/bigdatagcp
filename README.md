@@ -14,7 +14,7 @@
 ************************************************************************************************************************
 ### Subindo banco mysql para armazenar o metastore do hive (Cloud SQL)
 ```
-    > gcloud sql instances create hive-metastore9 \
+    > gcloud sql instances create hive-metastore10 \
     --database-version="MYSQL_5_7" \
     --activation-policy=ALWAYS \
     --zone us-east1-d 
@@ -35,7 +35,7 @@ Obs: Aguarde a finalização, antes de executar o próximo script.
     --image-version 1.4-debian9 \
     --project fia-tcc \
     --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
-    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore9" \
+    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore10" \
     --properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
@@ -68,27 +68,6 @@ Para acompanhar o término do script de inicialização, você pode acessar a m�
     > tail -f /var/log/syslog
 ```
 
-##### Redirecione sua porta local para acesso a UI do presto
-```
-    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 8080:localhost:8080
-```
-
-##### Redirecione sua porta local para acesso a UI do Airflow
-```
-    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 8081:localhost:8081
-```
-
-##### Redirecione sua porta local para acesso a UI do Metabase
-```
-    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 3000:localhost:3000
-```
-
-##### Redirecione sua porta local para acesso ao Mysql
-```
-    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 3306:localhost:3306
-```
-
-
 ************************************************************************************************************************
 Após subir todos os serviços necessário para nossa ingestão, processamento streaming e apresentação dos dados,  
 precisamos fazer apenas algumas configurações de conexões:
@@ -109,7 +88,7 @@ precisamos fazer apenas algumas configurações de conexões:
    * Assim como para o hive metastore, iremos recuperar o IP interno da máquina, na qual o kafka está instalado,  
    através desse [link](https://console.cloud.google.com/compute/instancesDetail/zones/us-east1-b/instances/platform).
    * Altere o parametro kafka.nodes no arquivo de configuração de catálogo do presto  
-   adicionando o IP interno recuperado no primeiro passo e a porta defaul do kafka (9092):
+   adicionando o IP interno recuperado no passo anterior e a porta default do kafka (9092):
       
       ```> vim ~/compute_engine/prestosql/etc/catalog/kafka.properties ```
  
@@ -118,37 +97,70 @@ precisamos fazer apenas algumas configurações de conexões:
         > cd ~/compute_engine/ 
         > docker-compose down
         > docker-compose up --force-recreate --build -d
+        > exit
+        > exit
       ```
+
+Para executar os comandos abaixo, abra novos terminais ou prompt de comando e execute um em cada janela.
+************************************************************************************************************************
+##### Redirecione sua porta local para acesso a UI do presto
+```
+    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 8080:localhost:8080
+```
+
+##### Redirecione sua porta local para acesso a UI do Airflow
+```
+    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 8081:localhost:8081
+```
+
+##### Redirecione sua porta local para acesso a UI do Metabase
+```
+    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 3000:localhost:3000
+```
+
+##### Redirecione sua porta local para acesso ao Mysql (passo opcional)
+```
+    > gcloud compute ssh platform --project fia-tcc --zone us-east1-b -- -L 3306:localhost:3306
+```
+
+Com os tuneis abertos, você já deve conseguir acessar as UIs disponíveis, sendo elas:
+
+| Ferramenta | UI |
+| :---: | :---: |
+| Airflow | http://localhost:8081 |
+| Metabase | http://localhost:3000 |
+| PrestoSQL | http://localhost:8080 |
+
 
 ## Configurações na UI do airflow
 
-- Crie uma connection chamada google_cloud_default com os valores abaixo:
+- Crie uma connection chamada **google_cloud_default** com os valores abaixo:
 
     | Campo             | Valor |
-    | :---:             |:---:  |
-    | Connection Type   | Google Platform|
+    | :---:             | :---: |
+    | Conn Type         | Google Cloud Platform|
     | Project Id        | fia-tcc |
     | Keyfile JSON      | Adicione o conteúdo do arquivo json gerado ao criar o usuário de serviço|
-    | Scope             | https://www.googleapis.com/auth/cloud-platform |
+    | Scopes            | https://www.googleapis.com/auth/cloud-platform |
 
-- Crie uma connection chamada kafka com os valores abaixo:
+- Crie uma connection chamada **kafka** com os valores abaixo:
 
     | Campo  | Valor |
-    | :---:  |:---:  |
+    | :---:  | :---: |
     | Host   | IP interno recuperado no passo "Conexão PrestoSQL -> Kafka"|
 
- - Criar uma connection slack_conn com os valores abaixo:
+ - Criar uma connection **slack_conn** com os valores abaixo:
  
     | Campo     | Valor |
-    | :---:     |:---:  |
+    | :---:     | :---: |
     | Login     | Adicione um canal default para receber seus alertas |
     | Password  | Adicione o Bot User OAuth Access Token gerado ao criar o bot no slack |  
 
 ************************************************************************************************************************  
-- Após as configurações das conexões, ative as três dags que aparecem na UI do airflow.  
-- A dag fundamentus-stock-stream iniciará automaticamente, subindo um cluster e disparando um job spark streaming.  
-- Aguarde até que o step chamado: inicia_spark_streaming; esteja no status running, isso significa que o spark já  
-está consumindo o tópico do kafka definido no yaml.
+- Após as configurações das conexões, ative as três dags que apareceram na UI do airflow.  
+- A dag *fundamentus-stock-stream* iniciará automaticamente, subindo um cluster e disparando um job spark streaming.  
+- Aguarde até que o step *inicia_spark_streaming*, dessa mesma dag, esteja no status running. Isso significa  
+que o spark já está consumindo o tópico do kafka definido no yaml.
 - Execute então a dag send-stocks-to-kafka, para que o web scrapper leia a página web e envie os dados  para o  
 tópico kafka definido no yaml.
   
@@ -171,7 +183,7 @@ __no windows trocar ^ por ^^^^__
     --optional-components ANACONDA,JUPYTER \
     --project fia-tcc \
     --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh','gs://fia-tcc-configurations/dataproc/dataproc_init.sh' \
-    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore9" \
+    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore10" \
     --properties=^#^spark:spark.driver.core=1\
     #spark:spark.driver.memory=2g\
     #spark:spark.driver.memoryOverhead=1g\

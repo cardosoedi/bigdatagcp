@@ -27,6 +27,7 @@ print(f'KEY_FIELD={KEY_FIELD}')
 # KAFKA_TOPIC = 'stock'
 # KEY_FIELD = 'papel'
 
+
 class Error(Exception):
     pass
 
@@ -95,7 +96,7 @@ def validate_save_data(df, epoch_id):
 
             # Write to redis
             df_raw.write.format("org.apache.spark.sql.redis")\
-                .option("table", f"{SOURCE}.{KAFKA_TOPIC}")\
+                .option("table", f"{SOURCE}:{KAFKA_TOPIC}")\
                 .option("key.column", KEY_FIELD)\
                 .save(mode='append')
 

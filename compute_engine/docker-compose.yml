@@ -3,7 +3,8 @@ services:
   mysql:
     image: mysql:5.7
     restart: always
-    networks: ["lake_network"]
+    networks:
+      - lake_network
     hostname: mysql.lake_network
     volumes:
       - ./mysql/my.cnf:/etc/mysql/mysql.cnf
@@ -27,7 +28,7 @@ services:
     ports:
         - "8081:8080"
     networks:
-      ["lake_network"]
+      - lake_network
     hostname: airflow_webserver.lake_network
     depends_on:
       - mysql
@@ -36,7 +37,8 @@ services:
   airflow_scheduler:
     image: airflow
     restart: always
-    networks: ["lake_network"]
+    networks:
+      - lake_network
     volumes:
       - ./airflow/airflow.cfg:/opt/airflow/airflow.cfg
       - ./airflow/dags:/opt/airflow/dags
@@ -45,29 +47,33 @@ services:
       - airflow_webserver
     command: scheduler
 
+  redis:
+    image: redis:5.0.6
+    networks:
+      - lake_network
+    hostname: redis.lake_network
+    ports:
+      - "6379:6379"
+
   prestosql:
     image: prestosql
     build:
       context: prestosql
       dockerfile: Dockerfile
-    networks: ["lake_network"]
+    networks:
+      - lake_network
     hostname: prestosql.lake_network
     ports:
       - "8080:8080"
     volumes:
-      - "./prestosql/etc/config.properties:/usr/lib/presto/etc/config.properties"
-      - "./prestosql/etc/node.properties:/usr/lib/presto/etc/node.properties"
-      - "./prestosql/etc/log.properties:/usr/lib/presto/etc/log.properties"
-      - "./prestosql/etc/jvm.config:/usr/lib/presto/etc/jvm.config"
-      - "./prestosql/etc/catalog/processed-zone.properties:/usr/lib/presto/etc/catalog/processed-zone.properties"
-      - "./prestosql/etc/catalog/kafka.properties:/usr/lib/presto/etc/catalog/kafka.properties"
-      - "./prestosql/etc/catalog/redis.properties:/usr/lib/presto/etc/catalog/redis.properties"
-      - "./prestosql/etc/kafka/fundamentus_stock.json:/usr/lib/presto/etc/kafka/fundamentus_stock.json"
-      - "./prestosql/etc/redis/fundamentus_stock.json:/usr/lib/presto/etc/redis/fundamentus_stock.json"
+      - ./prestosql/etc:/usr/lib/presto/etc
+    depends_on:
+      - redis
 
   metabase:
     image: metabase/metabase
-    networks: [ "lake_network" ]
+    networks:
+      - lake_network
     hostname: metabase.lake_network
     ports:
       - "3000:3000"
@@ -88,13 +94,6 @@ services:
 #      - "2181:2181"
 #      - "9092:9092"
 #    command: kafka_broker
-
-  redis-server:
-    image: redis:5.0.6
-    networks: ["lake_network"]
-    hostname: redis.lake_network
-    ports:
-      - "6379:6379"
 
 networks:
   lake_network:
