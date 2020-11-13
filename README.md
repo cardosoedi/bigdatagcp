@@ -1,20 +1,18 @@
 ### Pré requisitos para execução dos scripts
 
-1. Crie um login no [google cloud plataform](https://cloud.google.com/) e adicione um projeto chamado *fia-tcc*. [Veja como!](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)
+1. Crie um login no [google cloud plataform](https://cloud.google.com/) 
+    1. Adicione um projeto chamado *fia-tcc*. [Veja como!](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project)
+    2. Habilite a cobrança em um cartão de crédito, caso contrário não será possível utilizar máquinas com mais de 1 processador.
 2. Crie 4 buckets necessários para o projeto: *fia-tcc-configurations*, *fia-tcc-logs*, *fia-tcc-processed-zone*, *fia-tcc-raw-zone*. [Veja como!](https://cloud.google.com/storage/docs/creating-buckets)
 3. Acesse a página de [service account](https://console.cloud.google.com/iam-admin/serviceaccounts), escolha o projeto criado no primeiro passo e crie uma nova SA  
 chamada *sa-fia-tcc* com permissão de **Project Editor**.
    1. Após a criação da SA, ainda na página, vá em *actions* e escolha *create key* com a opção de chave **Json**.  
    2. Salve o arquivo json para uso futuro na criação de conexão no airflow.
-4. Instale o sdk do google (gsutils) na sua máquina. [Veja como!](https://cloud.google.com/storage/docs/gsutil_install) 
+4. Instale e configure o sdk do google (gsutils) na sua máquina, para acessar a suca conta. [Veja como!](https://cloud.google.com/storage/docs/gsutil_install) 
 5. Copie os diretórios *compute_engine* e *dataproc* para a raiz do bucket *fia-tcc-configurations*.
     ```
     > gsutil -m cp -r ./compute_engine gs://fia-tcc-configurations/
     > gsutil -m cp -r ./dataproc gs://fia-tcc-configurations/
-    ```
-6. Copie o diretório *notebooks* para raiz do bucket *fia-tcc-logs*.
-    ```
-    > gsutil -m cp -r ./notebooks gs://fia-tcc-logs/
     ```
 7. Abra um terminal ou prompt de commando e execute os comandos abaixo.
 
@@ -22,7 +20,7 @@ chamada *sa-fia-tcc* com permissão de **Project Editor**.
 ************************************************************************************************************************
 ### Subindo banco mysql para armazenar o metastore do hive (Cloud SQL)
 ```
-    > gcloud sql instances create hive-metastore10 \
+    > gcloud sql instances create hive-metastore \
     --database-version="MYSQL_5_7" \
     --activation-policy=ALWAYS \
     --zone us-east1-d 
@@ -43,7 +41,7 @@ Obs: Aguarde a finalização, antes de executar o próximo script.
     --image-version 1.4-debian9 \
     --project fia-tcc \
     --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh' \
-    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore10" \
+    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
     --properties hive:hive.metastore.warehouse.dir=gs://fia-tcc-processed-zone/
 ```
 
@@ -212,7 +210,7 @@ __no windows trocar ^ por ^^^^__
     --optional-components ANACONDA,JUPYTER \
     --project fia-tcc \
     --initialization-actions 'gs://goog-dataproc-initialization-actions-us-east1/cloud-sql-proxy/cloud-sql-proxy.sh','gs://fia-tcc-configurations/dataproc/dataproc_init.sh' \
-    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore10" \
+    --metadata "hive-metastore-instance=fia-tcc:us-east1:hive-metastore" \
     --properties=^#^spark:spark.driver.core=1\
     #spark:spark.driver.memory=2g\
     #spark:spark.driver.memoryOverhead=1g\
